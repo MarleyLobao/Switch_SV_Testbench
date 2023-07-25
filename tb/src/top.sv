@@ -1,3 +1,4 @@
+import switch_pkg::*;
 // Top level testbench module to instantiate design, interface
 // start clocks and run the test
 module top;

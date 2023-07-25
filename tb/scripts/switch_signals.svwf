@@ -1,0 +1,52 @@
+
+#
+# Mnemonic Maps
+#
+mmap new  -reuse -name {Boolean as Logic} -radix %b -contents {{%c=FALSE -edgepriority 1 -shape low}
+{%c=TRUE -edgepriority 1 -shape high}}
+mmap new  -reuse -name {Example Map} -radix %x -contents {{%b=11???? -bgcolor orange -label REG:%x -linecolor yellow -shape bus}
+{%x=1F -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=2C -bgcolor red -label ERROR -linecolor white -shape EVENT}
+{%x=* -label %x -linecolor gray -shape bus}}
+
+array unset createdGroup
+array set createdGroup {}
+#
+# Groups
+#
+if {[catch {group get -using [list {OUT}]}]} {
+set createdGroup([list {OUT}]) 1
+catch {group new -name OUT -overlay 0}
+}
+if {[info exists createdGroup([list {OUT}])]} {
+group using OUT
+group set -overlay 0
+group set -comment {}
+group clear 0 end
+group insert \
+    [subst  {[format {signed(top._if.addr_a)}]} ] \
+    [subst  {[format {top._if.data_a[15:0]}]} ] \
+    [subst  {[format {signed(top._if.addr_b)}]} ] \
+    [subst  {[format {top._if.data_b[15:0]}]} ]
+}
+
+set id [waveform add -signals [subst  {
+	{[format {top._if.clk}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {top._if.rstn}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {top._if.vld}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {signed(top._if.addr)}]}
+	} ]]
+set id [waveform add -signals [subst  {
+	{[format {top._if.data[15:0]}]}
+	} ]]
+
+set groupId0 [waveform add -groups OUT]
+
+
+waveform xview limits 0 480ns
